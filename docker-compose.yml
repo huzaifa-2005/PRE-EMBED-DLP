@@ -1,0 +1,18 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: dlp
+    ports: ["5432:5432"]
+  qdrant:
+    image: qdrant/qdrant
+    ports: ["6333:6333"]
+  detector:
+    build: ./detector
+    ports: ["8000:8000"]
+  orchestrator:
+    build: ./orchestrator
+    ports: ["8080:8080"]
+    env_file: .env
+    depends_on: [db, qdrant, detector]
