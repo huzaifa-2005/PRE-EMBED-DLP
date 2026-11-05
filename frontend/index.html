@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pre-Embed DLP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bar0" id="bar0"></div>
+<header><div class="w"><nav>
+  <a class="logo" href="#top"><svg viewBox="0 0 24 24" fill="none" stroke="#c9a96a" stroke-width="1.4"><path d="M12 2l9 4v6c0 5-3.8 8.6-9 10-5.2-1.4-9-5-9-10V6z"/><path d="M8 12h8M8 15h5" /></svg>Pre-Embed DLP</a>
+  <ul><li><a href="ingest.html">Ingest</a></li><li><a href="documents.html">Documents</a></li><li><a href="requests.html">Data requests</a></li><li><a href="demo.html">Leak demo</a></li></ul>
+  <a class="cta" href="ingest.html">Open the dashboard</a>
+</nav></div></header>
+
+<main id="top">
+<div class="w">
+<div class="hero">
+  <div>
+    <div class="k">Self-hosted · Pre-embedding · PII sanitization</div>
+    <h1 id="t"><span id="t1">Pre-Embed</span><em>DLP</em></h1>
+    <p class="lede">An AI-powered, self-hosted middleware that detects and sanitizes PII before it is converted into vector embeddings, protecting data privacy in RAG pipelines.</p>
+    <div class="btns"><a class="btn p" href="ingest.html">Open the dashboard</a><a class="btn g" href="demo.html">See the leak demo</a></div>
+  </div>
+  <div class="stage"><div class="doc" id="doc"><div class="scan"></div>
+    <div class="f"><span>HR-RECORD-0142.TXT</span><b>Synthetic</b></div>
+    <div class="r"><span class="l">Employee:</span><span class="v"><span class="x">Maria Alvarez</span><span class="b"></span></span></div>
+    <div class="r"><span class="l">SSN:</span><span class="v"><span class="x">412-55-8890</span><span class="b"></span></span></div>
+    <div class="r"><span class="l">Card:</span><span class="v"><span class="x">4539 1488 0343 6467</span><span class="b"></span></span></div>
+    <div class="r"><span class="l">Contact:</span><span class="v"><span class="x">m.alvarez@acme.test</span><span class="b"></span></span></div>
+    <hr><div class="ft"><strong id="cnt">0</strong><span>entities detected and replaced before embedding.</span></div>
+  </div></div>
+</div>
+
+<div class="stats rv">
+  <div class="stat"><b data-n="0">0</b><span>raw documents leave your infrastructure in production mode</span></div>
+  <div class="stat"><b data-n="2">0</b><span>vector stores supported, switched from a dropdown</span></div>
+  <div class="stat"><b data-n="2">0</b><span>embedding providers behind one interface</span></div>
+  <div class="stat"><b data-n="100" data-s="%">0</b><span>of detections and decisions written to the audit log</span></div>
+</div>
+</div>
+<div class="tk" aria-hidden="true"><div id="tk"></div></div>
+
+<div class="w">
+<section class="rv"><div class="k">The problem</div>
+  <h2>Your assistant can only keep secrets <i>it never learned.</i></h2>
+  <div class="prob">
+    <p>Companies are building internal assistants on HR files, support tickets and contracts. Those documents are full of personal data. Embed them as they are and the chatbot can quote an SSN or a medical detail to anyone who phrases the question well. Most ingestion pipelines have no step that checks for this, and existing tools are either enterprise-priced platforms or hosted APIs that a privacy-conscious company cannot send raw data to.</p>
+    <div class="fail">
+      <div><em>i</em><h4>Raw text is embedded</h4><p>Names, card numbers and diagnoses become vectors that can be retrieved verbatim.</p></div>
+      <div><em>ii</em><h4>No gate before the index</h4><p>Nothing sits between text extraction and the embedding model.</p></div>
+      <div><em>iii</em><h4>Cleanup means a full rebuild</h4><p>One leaked file forces teams to re-embed the whole knowledge base.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="rv"><div class="k">The pipeline</div>
+  <h2>One checkpoint between extraction and embedding.</h2>
+  <p class="sub">A document goes in. Sanitized text comes out. Nothing else reaches your embedder or vector store.</p>
+  <div class="steps" id="steps">
+    <button class="st on"><span class="n">01</span><h4>Document</h4><small>Text is extracted from HR files, tickets and contracts.</small></button>
+    <button class="st"><span class="n">02</span><h4>Detect</h4><small>Rules, checksums and NLP score every candidate entity.</small></button>
+    <button class="st"><span class="n">03</span><h4>Decide</h4><small>Keep, redact or pseudonymize, by a reviewer or by policy.</small></button>
+    <button class="st"><span class="n">04</span><h4>Embed</h4><small>Only sanitized chunks reach the embedding model.</small></button>
+    <button class="st"><span class="n">05</span><h4>Vector store</h4><small>Chunks are stored with access-control metadata.</small></button>
+  </div>
+</section>
+
+<section class="rv"><div class="k">Detection</div>
+  <h2>Layered, validated, <i>and scored.</i></h2>
+  <div class="two">
+    <div class="layers">
+      <div class="ly"><h4>Pattern rules <span>REGEX</span></h4><p>Fast matching for SSNs, emails, phone numbers, IBANs and other structured identifiers.</p></div>
+      <div class="ly"><h4>Checksum validation <span>LUHN</span></h4><p>A card number is only flagged when it passes its checksum, which cuts false alarms.</p></div>
+      <div class="ly"><h4>NLP entity recognition <span>NER</span></h4><p>A small model, loaded once at startup, finds names, addresses, organizations and medical terms in free text.</p></div>
+      <div class="ly"><h4>Context scoring <span>CONFIDENCE</span></h4><p>Surrounding words raise or lower each score, so "SSN:" next to nine digits ranks above nine digits alone.</p></div>
+    </div>
+    <div class="panel" id="pan"><div class="t"><span>DETECTION RESULT</span><span>synthetic</span></div>
+      <div class="conf"><div><span>Card · 4539 1488 0343 6467</span><span>0.99</span></div><i style="--w:99%"></i></div>
+      <div class="conf"><div><span>SSN · 412-55-8890</span><span>0.97</span></div><i style="--w:97%"></i></div>
+      <div class="conf"><div><span>Person · Maria Alvarez</span><span>0.91</span></div><i style="--w:91%"></i></div>
+      <div class="conf"><div><span>Email · m.alvarez@acme.test</span><span>0.96</span></div><i style="--w:96%"></i></div>
+      <div class="conf"><div><span>Order number · 4012 8841 2</span><span>0.31</span></div><i style="--w:31%"></i></div>
+      <p style="color:var(--mut);font-size:14px;margin-top:22px">The low-scoring match fails its checksum and is left alone.</p>
+    </div>
+  </div>
+</section>
+
+<section class="rv"><div class="k">Decisions</div>
+  <h2>Every entity gets a decision, <i>not a guess.</i></h2>
+  <p class="sub">A person decides in interactive mode. Policy rules decide in automated batch mode. Try each choice on the same sentence.</p>
+  <div class="two" style="align-items:center">
+    <div><p class="sent" id="sent">Please send the offer to <span class="chip" data-t="Maria Alvarez" data-p="PERSON_1">Maria Alvarez</span> at <span class="chip" data-t="m.alvarez@acme.test" data-p="EMAIL_1">m.alvarez@acme.test</span>, SSN <span class="chip" data-t="412-55-8890" data-p="SSN_1">412-55-8890</span>.</p></div>
+    <div><div class="seg" id="seg"><button class="on" data-m="keep">Keep</button><button data-m="redact">Redact</button><button data-m="pseudo">Pseudonymize</button></div>
+    <p class="note" id="note">Keep leaves the value as written. Use it only when the entity is safe to embed.</p></div>
+  </div>
+</section>
+
+<section class="rv"><div class="k">Architecture</div>
+  <h2>Built to plug in, <i>not to lock in.</i></h2>
+  <div class="arch">
+    <div class="ar"><small>ORCHESTRATION</small><h4>Go service</h4><p>Concurrent worker pools coordinate extraction, detection and hand-off.</p></div>
+    <div class="ar"><small>DETECTION</small><h4>FastAPI microservice</h4><p>Python service running the rule engine and NLP model behind its own interface.</p></div>
+    <div class="ar"><small>INTERFACE</small><h4>Dashboard</h4><p>Plain HTML, CSS and JavaScript for ingest, review, re-index and requests.</p></div>
+    <div class="ar"><small>RECORDS</small><h4>PostgreSQL</h4><p>Users, documents, jobs, entities, decisions, policies and audit logs.</p></div>
+  </div>
+  <div class="plug"><span>VectorStore · Qdrant + one more</span><span>EmbeddingProvider · two models</span><span>Detector · swap in a heavier model</span><span>docker compose up</span></div>
+</section>
+
+<section class="rv"><div class="k">Deployment</div>
+  <h2>Easy to try. <i>Strict where it counts.</i></h2>
+  <div class="modes">
+    <div class="mode"><span class="tg">DEVELOPMENT</span><h3>Fast to start</h3>
+      <ul><li>Docker Compose with normal internet access</li><li>Rules plus a small NLP model, about 100 to 300 MB of RAM</li><li>Hosted embedding API behind the same interface</li><li>Local Qdrant container</li><li>Synthetic data only</li></ul></div>
+    <div class="mode pr"><span class="tg">PRODUCTION</span><h3>Private by design</h3>
+      <ul><li>Model weights bundled in the image, no runtime downloads</li><li>Zero outbound network calls while processing</li><li>Runs on Kubernetes, ECS or on-premise</li><li>Fully local, or sanitized text only to approved endpoints</li><li>Access-control metadata on every chunk</li></ul></div>
+  </div>
+</section>
+
+<section class="rv"><div class="k">Workspace</div>
+  <h2>Four tools. <i>One audit trail.</i></h2>
+  <div class="list">
+    <a class="it" href="ingest.html"><span class="n">01</span><h3>Ingest</h3><p>Upload text, choose a vector store and embedder, and see what was redacted.</p><span class="g">→</span></a>
+    <a class="it" href="documents.html"><span class="n">02</span><h3>Documents</h3><p>Review versions and re-index a single flagged document.</p><span class="g">→</span></a>
+    <a class="it" href="requests.html"><span class="n">03</span><h3>Data requests</h3><p>Find and remove everything tied to one person.</p><span class="g">→</span></a>
+    <a class="it" href="demo.html"><span class="n">04</span><h3>Leak demo</h3><p>Ask one question of raw and sanitized data, side by side.</p><span class="g">→</span></a>
+  </div>
+</section>
+
+<section class="rv" id="leak"><div class="k">Leak demo</div>
+  <h2>Same question. <i>Two very different answers.</i></h2>
+  <div class="q"><span>“What is Maria Alvarez’s SSN?”</span><button class="btn p" id="again">Ask both collections</button></div>
+  <div class="cols">
+    <div class="pane rw"><header><span>UNPROTECTED COLLECTION</span><span class="tag">LEAK</span></header><div class="bd"><p id="a1"></p><div class="ch" id="c1">Employee: <mark>Maria Alvarez</mark><br>SSN: <mark>412-55-8890</mark></div></div></div>
+    <div class="pane sf"><header><span>PROTECTED COLLECTION</span><span class="tag">SAFE</span></header><div class="bd"><p id="a2"></p><div class="ch" id="c2">Employee: <mark>[PERSON_1]</mark><br>SSN: <mark>[REDACTED]</mark></div></div></div>
+  </div>
+</section>
+
+<section class="rv"><div class="k">Governance</div>
+  <h2>Every detection and decision, <i>on the record.</i></h2>
+  <p class="sub">Re-process a leaked document without rebuilding the knowledge base. Each document keeps a version history.</p>
+  <div class="log" id="log"></div>
+</section>
+
+<section class="end rv"><h2>Embed with confidence, <i>not with exposure.</i></h2>
+  <div class="btns"><a class="btn p" href="ingest.html">Open the dashboard</a><a class="btn g" href="demo.html">See the leak demo</a></div></section>
+<footer><p>Runs inside your own infrastructure. Every detection and decision is audit-logged.</p><span>Pre-Embed DLP</span></footer>
+</div>
+</main>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const rm=matchMedia('(prefers-reduced-motion: reduce)').matches,sleep=ms=>new Promise(r=>setTimeout(r,ms));
+/* headline */
+const t1=$('#t1');const txt=t1.textContent;t1.textContent='';
+[...txt].forEach((c,i)=>{const s=document.createElement('span');s.className='c';s.textContent=c;s.style.animationDelay=i*60+'ms';t1.append(s)});
+/* ticker */
+const ty=['Social security numbers','Payment cards','Email addresses','Phone numbers','Names','Home addresses','Bank accounts','Medical terms','Salaries','Dates of birth','Passport numbers','Organizations'];
+const tk=ty.map(x=>`<span>${x}</span>`).join('');$('#tk').innerHTML=tk+tk+tk;
+/* redaction loop */
+const doc=$('#doc'),rows=$$('.r',doc),cnt=$('#cnt');
+(async()=>{for(;;){rows.forEach(r=>r.classList.remove('hit','done'));cnt.textContent=0;if(!rm)doc.classList.add('s');await sleep(rm?200:1600);
+for(let i=0;i<rows.length;i++){rows[i].classList.add('hit');await sleep(rm?50:420);rows[i].classList.add('done');cnt.textContent=i+1;await sleep(rm?50:260)}
+doc.classList.remove('s');await sleep(4400)}})();
+/* tilt */
+if(!rm&&matchMedia('(hover:hover)').matches){const s=$('.stage');s.addEventListener('pointermove',e=>{const b=s.getBoundingClientRect(),x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;doc.style.transform=`rotateY(${x*9}deg) rotateX(${-y*9}deg)`});s.addEventListener('pointerleave',()=>doc.style.transform='')}
+/* pipeline */
+const st=$$('.st');let cur=0,tm;const set=i=>{st.forEach(s=>{s.classList.remove('on');void s.offsetWidth});st[i].classList.add('on');cur=i};
+const auto=()=>{clearInterval(tm);if(!rm)tm=setInterval(()=>set((cur+1)%5),1900)};st.forEach((s,i)=>s.onclick=()=>{set(i);auto()});auto();
+/* decisions */
+const notes={keep:'Keep leaves the value as written. Use it only when the entity is safe to embed.',redact:'Redact removes the value entirely. The vector never contains it.',pseudo:'Pseudonymize swaps in a consistent placeholder, so the same person stays linkable across chunks without being identified.'};
+$$('#seg button').forEach(b=>b.onclick=()=>{$$('#seg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');const m=b.dataset.m;
+$$('.chip').forEach(c=>{c.className='chip'+(m=='redact'?' r2':m=='pseudo'?' p2':'');c.textContent=m=='redact'?'█'.repeat(Math.max(6,c.dataset.t.length*.7|0)):m=='pseudo'?'['+c.dataset.p+']':c.dataset.t});$('#note').textContent=notes[m]});
+/* scroll */
+addEventListener('scroll',()=>{const d=document.documentElement;$('#bar0').style.width=scrollY/(d.scrollHeight-innerHeight)*100+'%'},{passive:true});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);if(e.target.id=='pan')e.target.classList.add('in')}}),{threshold:.12});
+$$('.rv').forEach(e=>io.observe(e));io.observe($('#pan'));
+/* count up */
+new IntersectionObserver((es,o)=>es.forEach(e=>{if(!e.isIntersecting)return;o.unobserve(e.target);const n=+e.target.dataset.n,s=e.target.dataset.s||'';let k=0;const f=()=>{k++;e.target.textContent=Math.round(n*Math.min(1,k/40))+s;if(k<40&&!rm)requestAnimationFrame(f);else e.target.textContent=n+s};f()}),{threshold:.6}).observe&&$$('.stat b').forEach(b=>{new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){o.disconnect();const n=+b.dataset.n,s=b.dataset.s||'';let k=0;(function f(){k++;b.textContent=Math.round(n*Math.min(1,k/40))+s;if(k<40&&!rm)requestAnimationFrame(f)})()}},{threshold:.6}).observe(b)});
+/* leak demo */
+const A1="Maria Alvarez’s SSN is 412-55-8890.",A2="I can’t share that. The record holds only placeholders.";
+async function ty2(el,s){el.textContent='';el.classList.add('cur');for(const c of s){el.textContent+=c;await sleep(rm?0:24)}el.classList.remove('cur')}
+let run=false;async function demo(){if(run)return;run=true;$('#c1').style.opacity=$('#c2').style.opacity=0;await Promise.all([ty2($('#a1'),A1),ty2($('#a2'),A2)]);$('#c1').style.opacity=$('#c2').style.opacity=1;run=false}
+$('#again').onclick=demo;new IntersectionObserver((e,o)=>{if(e[0].isIntersecting){o.disconnect();demo()}},{threshold:.4}).observe($('.cols'));
+/* audit log */
+const ev=[['DETECT','SSN found in HR-RECORD-0142, confidence 0.97'],['DETECT','Card passed Luhn check, confidence 0.99'],['DECIDE','SSN set to redact by policy hr-default'],['DECIDE','Name set to pseudonymize by reviewer a.khan'],['EMBED','Sanitized chunks sent to embedding provider'],['STORE','4 vectors written with access metadata'],['FLAG','Document HR-RECORD-0142 flagged for review'],['REINDEX','Old vectors deleted, version 2 stored'],['REQUEST','Subject request: 3 records removed'],['DETECT','Order number failed checksum, ignored']];
+const log=$('#log');let ei=0;const add=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0'),e=ev[ei++%ev.length];const l=document.createElement('div');l.className='ln';l.innerHTML=`<time>${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}</time><b>${e[0]}</b><span>${e[1]}</span>`;log.prepend(l);while(log.children.length>11)log.lastChild.remove()};
+for(let i=0;i<5;i++)add();if(!rm)setInterval(add,1700);
+</script>
+</body>
+</html>

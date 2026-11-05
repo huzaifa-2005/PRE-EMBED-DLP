@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingest · Pre-Embed DLP</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<div id="nav"></div>
+<main class="w page">
+  <div class="k">Ingest</div>
+  <h2>Sanitize, then <i>embed.</i></h2>
+  <p class="sub">Paste a document with fake sensitive data. PII is replaced before anything is embedded.</p>
+  <div class="form">
+    <div id="pick"></div>
+    <div><label>Document name</label><input id="name" value="hr-record-1"></div>
+    <div><label>Document text</label><textarea id="text">Employee: Maria Alvarez lives in Karachi. SSN is 412-55-8890, card 4539 1488 0343 6467, email maria@acme.test.</textarea></div>
+    <label class="chk" style="text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:15px;color:var(--mut)"><input type="checkbox" id="raw" checked> Also store an unsanitized copy (feeds the leak demo)</label>
+    <div><button class="btn p" id="go">Ingest document</button></div>
+    <div id="out"></div>
+  </div>
+</main>
+<script src="app.js"></script>
+<script>
+pickers($("#pick"));
+$("#go").onclick = () => run($("#go"), $("#out"), async () => {
+  const text = $("#text").value;
+  const res = await api(`/ingest?${qs()}&name=${encodeURIComponent($("#name").value || "untitled")}`, { method: "POST", body: text });
+  if ($("#raw").checked) await api(`/ingest-raw?${qs()}`, { method: "POST", body: text });
+  return res;
+});
+</script>
+</body></html>

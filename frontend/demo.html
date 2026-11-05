@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leak demo · Pre-Embed DLP</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<div id="nav"></div>
+<main class="w page">
+  <div class="k">Leak demo</div>
+  <h2>Same question. <i>Two very different answers.</i></h2>
+  <p class="sub">Use the same store and model you ingested with, otherwise nothing is found.</p>
+  <div class="form">
+    <div id="pick"></div>
+    <div><label>Question</label><input id="q" value="What is Maria Alvarez's SSN?"></div>
+    <div><button class="btn p" id="go">Ask both collections</button></div>
+  </div>
+  <div class="cols">
+    <div class="pane rw"><header><span>UNPROTECTED COLLECTION</span><span class="tag">LEAK</span></header><div class="bd" id="l"></div></div>
+    <div class="pane sf"><header><span>PROTECTED COLLECTION</span><span class="tag">SAFE</span></header><div class="bd" id="r"></div></div>
+  </div>
+</main>
+<script src="app.js"></script>
+<script>
+pickers($("#pick"));
+$("#go").onclick = async () => {
+  $("#go").disabled = true;
+  const q = encodeURIComponent($("#q").value);
+  for (const [col, id] of [["unprotected", "l"], ["protected", "r"]]) {
+    const el = $("#" + id);
+    el.textContent = "Searching…";
+    try {
+      const chunks = await api(`/ask?q=${q}&collection=${col}&${qs()}`);
+      el.innerHTML = chunks.length
+        ? chunks.map(c => `<div class="ch" style="opacity:1">${esc(c)}</div>`).join("")
+        : "No results. Ingest a document first.";
+    } catch (e) { el.innerHTML = `<div class="out bad">${esc(e.message)}</div>`; }
+  }
+  $("#go").disabled = false;
+};
+</script>
+</body></html>

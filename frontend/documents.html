@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documents · Pre-Embed DLP</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<div id="nav"></div>
+<main class="w page">
+  <div class="k">Documents</div>
+  <h2>Re-index one document, <i>not all of them.</i></h2>
+  <p class="sub">Re-indexing deletes that document's vectors and stores a new sanitized version. The original text is never kept, so paste it again.</p>
+  <table><thead><tr><th>ID</th><th>Name</th><th>Version</th><th>Status</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+  <div class="form hide" id="rp">
+    <div id="pick"></div>
+    <div><label>Re-index document #<span id="rid"></span></label><textarea id="rtext"></textarea></div>
+    <div><button class="btn p" id="rgo">Re-index this document</button></div>
+    <div id="out"></div>
+  </div>
+</main>
+<script src="app.js"></script>
+<script>
+pickers($("#pick"));
+async function load() {
+  try {
+    const rows = await api("/documents");
+    $("#rows").innerHTML = rows.length
+      ? rows.map(d => `<tr><td>${d.id}</td><td>${esc(d.name)}</td><td>${d.version}</td><td>${esc(d.status)}</td>
+          <td><button class="btn g sm" data-id="${d.id}">Re-index</button></td></tr>`).join("")
+      : `<tr><td colspan="5">No documents yet. Ingest one first.</td></tr>`;
+  } catch (e) { $("#rows").innerHTML = `<tr><td colspan="5">${esc(e.message)}</td></tr>`; }
+}
+$("#rows").onclick = e => {
+  const id = e.target.dataset.id;
+  if (!id) return;
+  $("#rid").textContent = id;
+  $("#rp").classList.remove("hide");
+  $("#rp").scrollIntoView({ behavior: "smooth" });
+};
+$("#rgo").onclick = () => run($("#rgo"), $("#out"), async () => {
+  const res = await api(`/reindex/${$("#rid").textContent}?${qs()}`, { method: "POST", body: $("#rtext").value });
+  load();
+  return res;
+});
+load();
+</script>
+</body></html>

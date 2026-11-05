@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data requests · Pre-Embed DLP</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<div id="nav"></div>
+<main class="w page">
+  <div class="k">Data requests</div>
+  <h2>Remove one person, <i>everywhere.</i></h2>
+  <p class="sub">Finds every document that mentions this name and deletes its vectors.</p>
+  <div class="form">
+    <div id="pick"></div>
+    <div><label>Person's name</label><input id="who" value="Maria Alvarez"></div>
+    <div><button class="btn p" id="go">Find and delete</button></div>
+    <div id="out"></div>
+  </div>
+</main>
+<script src="app.js"></script>
+<script>
+pickers($("#pick"));
+$("#go").onclick = () => run($("#go"), $("#out"), () =>
+  api(`/dsr?${qs()}&name=${encodeURIComponent($("#who").value)}`, { method: "POST" }));
+</script>
+</body></html>
