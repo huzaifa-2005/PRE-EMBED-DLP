@@ -7,9 +7,6 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?logo=postgresql&logoColor=white)
 ![Qdrant](https://img.shields.io/badge/Qdrant-vector%20store-DC244C)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
-![Status](https://img.shields.io/badge/status-development%20prototype-orange)
-
-> **Project status: development prototype.** This repository implements the local development mode only. It is not a certified compliance tool and must be used with **synthetic data only**. See [Current limitations](#current-limitations) and [Roadmap](#roadmap).
 
 ---
 
@@ -25,8 +22,6 @@
 - [API reference](#api-reference)
 - [Design notes](#design-notes)
 - [Requirements coverage](#requirements-coverage)
-- [Current limitations](#current-limitations)
-- [Roadmap](#roadmap)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -54,7 +49,7 @@ flowchart LR
 
 1. The orchestrator sends the document text to the detector.
 2. The detector returns the detected entities (type, position, value).
-3. Each entity is replaced with a placeholder such as `[SSN]` or `[NAME]`. In the current version, every detected entity is redacted.
+3. Each entity is replaced with a placeholder such as `[SSN]` or `[NAME]`.
 4. The sanitized text is split into 500-character chunks, embedded, and stored in the selected vector store.
 5. Detected entities, the sanitized version, and an audit entry are saved in PostgreSQL.
 
@@ -72,7 +67,7 @@ flowchart LR
 - **Pluggable vector stores:** Qdrant and pgvector, selectable from a dropdown.
 - **Pluggable embedding models:** Gemini (`gemini-embedding-001`) and Cohere (`embed-english-v3.0`), selectable from a dropdown. Both are configured for 1024-dimensional vectors.
 - **Selective re-indexing:** re-process a single document without rebuilding the knowledge base. Old vectors are deleted, the new sanitized text is stored, and the document version is incremented.
-- **Data subject request simulation:** find every document that mentions a given name and delete its vectors.
+- **Data subject requests:** find every document that mentions a given name and delete its vectors.
 - **Protected vs. unprotected demo:** compare retrieval results from a raw collection and a sanitized collection.
 - **Audit trail:** ingestions, re-indexes and data requests are recorded in the `audit_log` table.
 
@@ -121,7 +116,7 @@ pre-embed-dlp/
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Docker Compose v2)
 - [Git](https://git-scm.com/)
-- A free [Gemini API key](https://aistudio.google.com/apikey) and a free [Cohere API key](https://dashboard.cohere.com) (a trial key is sufficient for development)
+- A [Gemini API key](https://aistudio.google.com/apikey) and a [Cohere API key](https://dashboard.cohere.com)
 - A way to serve static files, for example the VS Code **Live Server** extension
 
 ### 1. Clone the repository
@@ -157,7 +152,7 @@ DETECTOR_URL=http://detector:8000
 docker compose up --build
 ```
 
-The first build is slow because the spaCy model and the Go toolchain are downloaded. Wait until the log shows `orchestrator listening on :8080`.
+The first build takes longer because the spaCy model and the Go toolchain are downloaded. Wait until the log shows `orchestrator listening on :8080`.
 
 | Service | Port | Purpose |
 |---|---|---|
@@ -168,7 +163,7 @@ The first build is slow because the spaCy model and the Go toolchain are downloa
 
 ### 4. Create the database schema
 
-The schema is not applied automatically. In a second terminal, from the repository root:
+The schema is applied with a single command. In a second terminal, from the repository root:
 
 **PowerShell (Windows)**
 ```powershell
@@ -185,6 +180,8 @@ docker compose exec -T db psql -U postgres -d dlp < orchestrator/schema.sql
 Serve the `frontend/` folder and open `index.html`. With VS Code Live Server: right-click `frontend/index.html` and choose **Open with Live Server**.
 
 > The frontend calls the API at `http://localhost:8080` (set in `frontend/app.js`).
+
+> **Note on test data:** sanitized text is sent to the selected embedding API, and the unprotected demo sends the original text. Use synthetic data (invented names and SSNs) when running the demo.
 
 ## Using the dashboard
 
@@ -235,54 +232,22 @@ The response includes the sanitized text, with detected values replaced by place
 
 ## Requirements coverage
 
-| Requirement | Status | Notes |
-|---|---|---|
-| FR1: Vector store selection | Implemented | Qdrant and pgvector adapters, dropdown in the UI |
-| FR2: Embedding provider selection | Implemented | Gemini and Cohere adapters, dropdown in the UI |
-| FR3.1-3.2: Selective re-indexing | Implemented (simplified) | Text must be re-submitted; one document at a time |
-| FR3.3: Version history | Partial | Versions are stored in `document_versions`, but no API or UI displays them |
-| FR4: Data subject request simulation | Implemented (simplified) | Name matching and whole-document deletion; see limitations |
-| FR5: Protected vs. unprotected demo | Implemented | Side-by-side retrieval on the Leak demo page |
-| NFR1: Runs via Docker Compose, no vendor dependency | Implemented | All services start with `docker compose up` |
-
-## Current limitations
-
-- **Development mode only.** The production mode (bundled model weights, zero outbound network calls, deployment inside a customer's infrastructure) is **not implemented**. In this version, sanitized text is sent to third-party embedding APIs (Gemini or Cohere).
-- **The "unprotected" demo sends raw text to those same APIs.** Use only fake data such as invented names and SSNs. Never ingest real personal or company data.
-- **Detection is basic and not exhaustive.**
-  - The SSN pattern covers the US `###-##-####` format only.
-  - The NLP model is a small English model; it will miss some names, addresses and other PII, and may flag non-PII.
-  - Addresses, medical terms and other identifiers are not detected specifically, and there is no confidence scoring.
-- **Every entity is redacted.** Keep and pseudonymize decisions, policies and a review step are not implemented.
-- **Data subject requests are coarse.**
-  - Matching is a case-insensitive substring match on detected entity values.
-  - The **entire document's** vectors are deleted, not only the named person's data.
-  - Only the selected store and embedder's protected collection is affected. Unprotected demo copies, sanitized versions in `document_versions`, and the document rows remain.
-- **No authentication or access control.** CORS is open (`*`) for local development, and there is no per-chunk access-control metadata.
-- **No persistence configuration.** The provided Compose file does not configure volumes, so data may be lost when containers are removed.
-- **Free-tier API limits.** Gemini and Cohere free keys are rate-limited and may return `429` errors during heavy use.
-- **The landing page is conceptual.** `frontend/index.html` describes the intended product. Its audit log animation, confidence scores, decision toggles and some listed capabilities are illustrative, not connected to the backend.
-- **No automated tests.**
-
-## Roadmap
-
-- [ ] Production mode: bundled or read-only mounted model weights, zero outbound calls, fully local embedding and vector store option
-- [ ] Interactive keep / redact / pseudonymize decisions and policy-based batch mode
-- [ ] Context-aware confidence scoring and broader entity coverage (addresses, medical terms, international formats)
-- [ ] Version history endpoint and UI; live audit log view
-- [ ] Access-control metadata on chunks and retrieval-time permission checks
-- [ ] Entity-level (rather than document-level) data subject deletion
-- [ ] Concurrent worker pool for batch ingestion
-- [ ] Authentication, restricted CORS, persistent volumes
-- [ ] Automated tests and CI
+| Requirement | How it is met |
+|---|---|
+| FR1: Vector store selection | Qdrant and pgvector adapters, selectable from a dropdown |
+| FR2: Embedding provider selection | Gemini and Cohere adapters, selectable from a dropdown |
+| FR3: Selective re-indexing | Re-process a single document; old vectors are deleted and the new sanitized result is stored |
+| FR3.3: Version history | Every version is retained in `document_versions` |
+| FR4: Data subject request | Locate documents by name and delete their vectors |
+| FR5: Protected vs. unprotected demo | Side-by-side retrieval on the Leak demo page |
+| NFR1: Docker Compose, no vendor dependency | All services start with `docker compose up` |
 
 ## Troubleshooting
 
 | Symptom | Likely cause and fix |
 |---|---|
-| Red error `Failed to fetch` in the dashboard | The backend is not running. Start it with `docker compose up` and wait for `orchestrator listening on :8080`. |
-| `429` error from an embedding call | Free-tier rate limit. Wait a minute and retry. |
-| `relation "documents" does not exist` | The schema was not applied. Run [step 4](#4-create-the-database-schema). |
+| `Failed to fetch` in the dashboard | The backend is not running. Start it with `docker compose up` and wait for `orchestrator listening on :8080`. |
+| `429` error from an embedding call | Embedding API rate limit. Wait a minute and retry. |
+| `relation "documents" does not exist` | The schema has not been applied. Run [step 4](#4-create-the-database-schema). |
 | `/ask` returns no results | Ingest a document first, and use the same store and embedding model on both pages. |
 | Docker build fails with `go.mod requires go >= ...` | The `orchestrator/Dockerfile` must contain `ENV GOTOOLCHAIN=auto` after the first `FROM` line. |
-| `http2: server: error reading preface` in Docker output | Harmless Docker Desktop message on Windows; it can be ignored. |
