@@ -11,7 +11,7 @@
     function validateMark(text) {
       const n = Number(text);
       if (text.trim() === "" || !Number.isInteger(n)) return "Rejected";
-      if (n >= 0 && n <= 10) return "Accepted";
+      if (n >= 0 && n < 10) return "Accepted";
       return "Rejected";
     }
     document.getElementById("check").onclick = function () {
