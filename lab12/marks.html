@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Quiz Mark Validator</title></head>
+<body>
+  <h1>Quiz Mark Validator</h1>
+  <label for="mark">Enter a mark (0 to 10):</label>
+  <input id="mark" type="text">
+  <button id="check">Check</button>
+  <p id="result"></p>
+  <script>
+    function validateMark(text) {
+      const n = Number(text);
+      if (text.trim() === "" || !Number.isInteger(n)) return "Rejected";
+      if (n >= 0 && n <= 10) return "Accepted";
+      return "Rejected";
+    }
+    document.getElementById("check").onclick = function () {
+      document.getElementById("result").textContent =
+        validateMark(document.getElementById("mark").value);
+    };
+  </script>
+</body>
+</html>
